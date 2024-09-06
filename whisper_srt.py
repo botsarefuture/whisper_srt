@@ -3,6 +3,7 @@ import argparse
 import whisper
 from datetime import timedelta
 
+
 # Function to format time in HH:MM:SS,mmm format
 def format_time(seconds):
     # Convert seconds to timedelta
@@ -18,39 +19,51 @@ def format_time(seconds):
 
     return formatted_time
 
+
 # Function to transcribe audio and save as SRT file
 def transcribe_audio(input_audio, output_srt, model):
     # Check if the specified model is supported by whisper
     if model not in whisper.available_models():
-        raise Exception(f"Model is not available. \nTry one of these models:\n{whisper.available_models()}")
+        raise Exception(
+            f"Model is not available. \nTry one of these models:\n{whisper.available_models()}"
+        )
 
     # Load the audio file using whisper library
     audio = whisper.load_audio(input_audio)
-    
+
     # Load the ASR model using whisper library
     model = whisper.load_model(model)
 
     # Transcribe the audio using the loaded model
     result = model.transcribe(audio, word_timestamps=True)
-    
+
     # Save the transcript to an SRT file
-    with open(output_srt, 'w') as srt_file:
-        for segment in result['segments']:
+    with open(output_srt, "w") as srt_file:
+        for segment in result["segments"]:
             # Format start and end times
             start_time = format_time(segment["start"])
-            end_time = format_time(segment['end'])
-            
+            end_time = format_time(segment["end"])
+
             # Process and write each segment to the SRT file
-            srt_file.write(f"{segment['id']+1}\n{start_time} --> {end_time}\n{(segment['text'].strip()).replace('  ', ' ')}\n\n")
+            srt_file.write(
+                f"{segment['id']+1}\n{start_time} --> {end_time}\n{(segment['text'].strip()).replace('  ', ' ')}\n\n"
+            )
+
 
 if __name__ == "__main__":
     # Command-line argument parser
-    parser = argparse.ArgumentParser(description="Transcribe audio to SRT using whisper")
-    
+    parser = argparse.ArgumentParser(
+        description="Transcribe audio to SRT using whisper"
+    )
+
     # Define command-line arguments
     parser.add_argument("input_audio", help="Path to the input audio file")
     parser.add_argument("output_srt", help="Path to the output SRT file")
-    parser.add_argument("model", help="Name of the whisper ASR model", choices=whisper.available_models())
+    parser.add_argument(
+        "model",
+        help="Name of the whisper ASR model",
+        choices=whisper.available_models(),
+    )
 
     # Parse command-line arguments
     args = parser.parse_args()
